@@ -15,20 +15,26 @@ public class DiscordMinecraftPlugin extends JavaPlugin  {
     public void onEnable(){
         loadConfig();
         final String token = getConfig().getString("config.discord_bot_token");
-        assert token != null;
-        assert token.length()>20;
+        if (token == null || token.length()<20){
+            this.getLogger().severe("Please specify a Discord-Bot-Token in the config.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
         try {
             discordMinecraftConnector = new DiscordMinecraftConnector(token, getServer().getMaxPlayers());
-        } catch (LoginException ignored) {
-
+        } catch (LoginException e) {
+            this.getLogger().severe(e.getMessage());
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
         }
         PluginManager pm = Bukkit.getServer().getPluginManager();
         pm.registerEvents(new MinecraftPlayerJoinEvent(this), this);
         pm.registerEvents(new MinecraftPlayerQuitEvent(this), this);
     }
-     //@Override
+     @Override
      public void onDisable(){
-        discordMinecraftConnector.shutdown();
+        if (discordMinecraftConnector != null )
+            discordMinecraftConnector.shutdown();
      }
     private void loadConfig(){
         getConfig().options().copyDefaults(true);
