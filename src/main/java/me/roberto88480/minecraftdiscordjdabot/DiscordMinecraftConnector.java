@@ -1,5 +1,6 @@
 package me.roberto88480.minecraftdiscordjdabot;
 
+import me.roberto88480.minecraftusernameuuidconverter.UsernameToUUIDConverter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -12,21 +13,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.json.simple.parser.ParseException;
 
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
+import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class DiscordMinecraftConnector extends ListenerAdapter {
     private final JDA jda;
-    private final Plugin plugin;
-    //private final Logger logger;
+    private final Logger logger;
 
-    public DiscordMinecraftConnector(String token, int maxPlayers, Plugin plugin) throws LoginException {
-        this.plugin = plugin;
-        //this.logger = plugin.getLogger();
+    public DiscordMinecraftConnector(@NotNull String token, int maxPlayers, @NotNull Plugin plugin) throws LoginException {
+        this.logger = plugin.getLogger();
         // We don't need any intents for this bot. Slash commands work without any intents!
         jda = JDABuilder.createLight(token, Collections.emptyList())
                 .addEventListeners(this)
@@ -42,8 +46,6 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
                 new CommandData("whitelist", "Show whitelisted players or add a player")
                     .addOption(OptionType.STRING,"playername", "Add this player to the Minecraft whitelist", false)
         ).queue();
-        //System.out.println(jda.retrieveCommands().submit().join().get(0).delete().submit().join().toString());
-        //System.out.println(jda.retrieveCommands().submit().join().toString());
     }
 
     @Override
@@ -66,25 +68,22 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
                 } else {
                     String playername = playerOption.getAsString();
                     if (playername.matches("^\\w{3,16}$")) {
-                        /*
+                        UUID playeruuid;
                         try {
-                            Callable<Boolean> task = () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("whitelist add %s", playername));
-                            if (Bukkit.getScheduler().callSyncMethod(
-                                    this.plugin,
-                                    task
-                            ).get()) {
-                                event.reply(String.format("Added player `%s` to whitelist!", playername)).queue();
-                                Bukkit.broadcastMessage(String.format("Discord User %s added %s to the whitelist", event.getUser().getAsTag(), playername));
-                            } else {
-                                event.reply(String.format("An error occured and %s could not be added to the whitelist.", playername)).queue();
-                            }
-                        } catch (InterruptedException | ExecutionException e) {
-                            event.reply(String.format("An error occured and %s could not be added to the whitelist.", playername)).queue();
+                            playeruuid = UsernameToUUIDConverter.getUUID(playername);
+                            Bukkit.getOfflinePlayer(playeruuid).setWhitelisted(true);
+                            event.reply(String.format("Added player `%s` (UUID: %s) to whitelist!", playername, playeruuid)).queue();
+                            Bukkit.broadcastMessage(String.format("[Discord] %s added %s (UUID: %s) to the whitelist", event.getUser().getAsTag(), playername, playeruuid));
+                        } catch (IOException e) {
+                            event.reply("Internal Server Error (Java IOException)").setEphemeral(true).queue();
+                            logger.warning(String.format("IOException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
+                        } catch (ParseException e) {
+                            event.reply(String.format("Internal Server Error (Java ParseException). Maybe %s is not a vaild username.", playername)).setEphemeral(true).queue();
+                            logger.warning(String.format("ParseException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
+                        } catch (RuntimeException e) {
+                            event.reply(String.format("Internal Server Error (Java RuntimeException). Maybe %s is not a vaild username.", playername)).setEphemeral(true).queue();
+                            logger.warning(String.format("RuntimeException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
                         }
-                         */
-                        Bukkit.getOfflinePlayer(playername).setWhitelisted(true);
-                        event.reply(String.format("Added player `%s` to whitelist!", playername)).queue();
-                        Bukkit.broadcastMessage(String.format("[Discord] %s added %s to the whitelist", event.getUser().getAsTag(), playername));
                     } else {
                         event.reply(String.format("Invalid playername `%s`", playername)).setEphemeral(true).queue();
                     }

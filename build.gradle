@@ -31,6 +31,9 @@ dependencies {
         exclude module: 'opus-java'
     }
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.0-alpha5'
+    // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
 }
 task relocateShadowJar(type: ConfigureShadowRelocation) {
@@ -46,4 +49,8 @@ shadowJar {
     archiveBaseName.set('minecraft-discordjda-bot-plugin')
     archiveClassifier.set('')
     archiveVersion.set('')
+}
+
+test {
+    useJUnitPlatform()
 }
