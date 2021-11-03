@@ -23,12 +23,9 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
     private final JDA jda;
     private final Plugin plugin;
     //private final Logger logger;
-    public DiscordMinecraftConnector(String token) throws LoginException {
-        this(token, 0);
-    }
 
-    public DiscordMinecraftConnector(String token, int maxPlayers) throws LoginException {
-        this.plugin = Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("RobertosMinecraftDiscordBot"));
+    public DiscordMinecraftConnector(String token, int maxPlayers, Plugin plugin) throws LoginException {
+        this.plugin = plugin;
         //this.logger = plugin.getLogger();
         // We don't need any intents for this bot. Slash commands work without any intents!
         jda = JDABuilder.createLight(token, Collections.emptyList())

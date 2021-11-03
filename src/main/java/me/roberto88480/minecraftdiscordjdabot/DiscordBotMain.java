@@ -6,14 +6,8 @@ import javax.security.auth.login.LoginException;
 
 public class DiscordBotMain extends ListenerAdapter
 {
-    public static void main(String[] args) throws LoginException
+    public static void main(String[] args)
     {
-        // TODO: Maybe replace everything with exit(1)
-        //
-        if (args.length < 1) {
-            System.out.println("You have to provide a token as first argument!");
             System.exit(1);
-        }
-        DiscordMinecraftConnector discordMinecraftConnector = new DiscordMinecraftConnector(args[0]);
     }
 }

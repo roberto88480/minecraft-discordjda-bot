@@ -21,7 +21,7 @@ public class DiscordMinecraftPlugin extends JavaPlugin  {
             return;
         }
         try {
-            discordMinecraftConnector = new DiscordMinecraftConnector(token, getServer().getMaxPlayers());
+            discordMinecraftConnector = new DiscordMinecraftConnector(token, getServer().getMaxPlayers(), this);
         } catch (LoginException e) {
             this.getLogger().severe(e.getMessage());
             Bukkit.getPluginManager().disablePlugin(this);
