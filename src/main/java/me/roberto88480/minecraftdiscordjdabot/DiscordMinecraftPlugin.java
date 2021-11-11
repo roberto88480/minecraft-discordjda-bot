@@ -1,8 +1,11 @@
 package me.roberto88480.minecraftdiscordjdabot;
 
+import me.roberto88480.minecraftdiscordjdabot.minecraftevents.MinecraftPlayerAdvancementDoneEvent;
 import me.roberto88480.minecraftdiscordjdabot.minecraftevents.MinecraftPlayerJoinEvent;
 import me.roberto88480.minecraftdiscordjdabot.minecraftevents.MinecraftPlayerQuitEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,6 +33,7 @@ public class DiscordMinecraftPlugin extends JavaPlugin  {
         PluginManager pm = Bukkit.getServer().getPluginManager();
         pm.registerEvents(new MinecraftPlayerJoinEvent(this), this);
         pm.registerEvents(new MinecraftPlayerQuitEvent(this), this);
+        pm.registerEvents(new MinecraftPlayerAdvancementDoneEvent(this), this);
     }
      @Override
      public void onDisable(){
@@ -49,5 +53,8 @@ public class DiscordMinecraftPlugin extends JavaPlugin  {
                 leaving?getServer().getOnlinePlayers().size()-1:getServer().getOnlinePlayers().size(),
                 getServer().getMaxPlayers()
         );
+    }
+    public void announceAdvancement(Player p, Advancement a){
+
     }
 }
