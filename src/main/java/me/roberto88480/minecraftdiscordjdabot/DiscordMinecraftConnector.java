@@ -86,30 +86,37 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
                 }
             }
             case "whitelist" -> {
-                OptionMapping playerOption = event.getOption("playername");
-                if (playerOption == null){
-                    event.reply(String.format("There are %d whitelisted players: %s", Bukkit.getWhitelistedPlayers().size(), Bukkit.getWhitelistedPlayers().stream().map(OfflinePlayer::getName).collect(Collectors.joining(", ")))).setEphemeral(true).queue();
+                if (
+                        plugin.getConfig().getBoolean("discord.slashcommands.usechannelwhitelist") &&
+                                !plugin.getConfig().getStringList("discord.slashcommands.whitelistedchannels").contains(event.getChannel().getId())
+                ){
+                    event.reply("This command is not allowed here.").setEphemeral(true).queue();
                 } else {
-                    String playername = playerOption.getAsString();
-                    if (playername.matches("^\\w{3,16}$")) {
-                        UUID playeruuid;
-                        try {
-                            playeruuid = UsernameToUUIDConverter.getUUID(playername);
-                            Bukkit.getOfflinePlayer(playeruuid).setWhitelisted(true);
-                            event.reply(String.format("Added player `%s` (UUID: %s) to whitelist!", playername, playeruuid)).queue();
-                            Bukkit.broadcastMessage(String.format("[Discord] %s added %s (UUID: %s) to the whitelist", event.getUser().getAsTag(), playername, playeruuid));
-                        } catch (IOException e) {
-                            event.reply("Internal Server Error (Java IOException)").setEphemeral(true).queue();
-                            logger.warning(String.format("IOException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
-                        } catch (ParseException e) {
-                            event.reply(String.format("Internal Server Error (Java ParseException). Maybe %s is not a vaild username.", playername)).setEphemeral(true).queue();
-                            logger.warning(String.format("ParseException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
-                        } catch (RuntimeException e) {
-                            event.reply(String.format("Internal Server Error (Java RuntimeException). Maybe %s is not a vaild username.", playername)).setEphemeral(true).queue();
-                            logger.warning(String.format("RuntimeException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
-                        }
+                    OptionMapping playerOption = event.getOption("playername");
+                    if (playerOption == null) {
+                        event.reply(String.format("There are %d whitelisted players: %s", Bukkit.getWhitelistedPlayers().size(), Bukkit.getWhitelistedPlayers().stream().map(OfflinePlayer::getName).collect(Collectors.joining(", ")))).setEphemeral(true).queue();
                     } else {
-                        event.reply(String.format("Invalid playername `%s`", playername)).setEphemeral(true).queue();
+                        String playername = playerOption.getAsString();
+                        if (playername.matches("^\\w{3,16}$")) {
+                            UUID playeruuid;
+                            try {
+                                playeruuid = UsernameToUUIDConverter.getUUID(playername);
+                                Bukkit.getOfflinePlayer(playeruuid).setWhitelisted(true);
+                                event.reply(String.format("Added player `%s` (UUID: %s) to whitelist!", playername, playeruuid)).queue();
+                                Bukkit.broadcastMessage(String.format("[Discord] %s added %s (UUID: %s) to the whitelist", event.getUser().getAsTag(), playername, playeruuid));
+                            } catch (IOException e) {
+                                event.reply("Internal Server Error (Java IOException)").setEphemeral(true).queue();
+                                logger.warning(String.format("IOException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
+                            } catch (ParseException e) {
+                                event.reply(String.format("Internal Server Error (Java ParseException). Maybe %s is not a vaild username.", playername)).setEphemeral(true).queue();
+                                logger.warning(String.format("ParseException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
+                            } catch (RuntimeException e) {
+                                event.reply(String.format("Internal Server Error (Java RuntimeException). Maybe %s is not a vaild username.", playername)).setEphemeral(true).queue();
+                                logger.warning(String.format("RuntimeException while %s tried to add %s to whitelist: %s", event.getUser().getAsTag(), playername, Arrays.toString(e.getStackTrace())));
+                            }
+                        } else {
+                            event.reply(String.format("Invalid playername `%s`", playername)).setEphemeral(true).queue();
+                        }
                     }
                 }
             }
