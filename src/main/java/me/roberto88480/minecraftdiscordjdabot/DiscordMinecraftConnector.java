@@ -4,8 +4,10 @@ import me.roberto88480.minecraftusernameuuidconverter.UsernameToUUIDConverter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -18,10 +20,9 @@ import org.json.simple.parser.ParseException;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -39,16 +40,32 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
                 .setActivity(Activity.playing(String.format("Minecraft %d/%d", 0, plugin.getServer().getMaxPlayers())))
                 .build();
 
-        //jda.upsertCommand("ping", "Calculate ping of the bot").queue();
-        // This can take up to 1 hour to show up in the client
-        jda.upsertCommand(
-                new CommandData("minecraft", "Show Minecraft server info")
-        ).queue();
-        jda.upsertCommand(
-                new CommandData("whitelist", "Show whitelisted players or add a player")
-                    .addOption(OptionType.STRING,"playername", "Add this player to the Minecraft whitelist", false)
-        ).queue();
-    }
+        CommandData minecraftCommand = new CommandData("minecraft", "Show Minecraft server info");
+        CommandData whitelistCommand = new CommandData("whitelist", "Show whitelisted players or add a player")
+                .addOption(OptionType.STRING, "playername", "Add this player to the Minecraft whitelist", false);
+
+        try {
+            jda.awaitReady();
+            List<Command> commands = jda.retrieveCommands().submit().get();
+            //Delete Global Commands exept "minecraft"
+            for (Command command : commands) {
+                if (!command.getName().equals("minecraft")){
+                    command.delete().queue();
+                    logger.log(Level.INFO,"Deleted global Discord Command: " + command.getName());
+                }
+            }
+            // Create global "minecraft" command if it does not exist
+            if (commands.stream().anyMatch(c -> c.getName().equals("minecraft"))) {
+                logger.log(Level.INFO,"Discord Command already exists: " + minecraftCommand.getName());
+            } else {
+                // This can take up to 1 hour to show up in the client
+                jda.upsertCommand(minecraftCommand).queue();
+                logger.log(Level.INFO,"Added global Discord Command: " + minecraftCommand.getName());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        //jda.upsertCommand(whitelistCommand).queue();
 
     @Override
     public void onSlashCommand(SlashCommandEvent event)
