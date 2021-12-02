@@ -28,13 +28,15 @@ import java.util.stream.Collectors;
 public class DiscordMinecraftConnector extends ListenerAdapter {
     private final JDA jda;
     private final Logger logger;
+    private final Plugin plugin;
 
-    public DiscordMinecraftConnector(@NotNull String token, int maxPlayers, @NotNull Plugin plugin) throws LoginException {
+    public DiscordMinecraftConnector(@NotNull String token, @NotNull Plugin plugin) throws LoginException {
         this.logger = plugin.getLogger();
+        this.plugin = plugin;
         // We don't need any intents for this bot. Slash commands work without any intents!
         jda = JDABuilder.createLight(token, Collections.emptyList())
                 .addEventListeners(this)
-                .setActivity(Activity.playing(String.format("Minecraft %d/%d", 0, maxPlayers)))
+                .setActivity(Activity.playing(String.format("Minecraft %d/%d", 0, plugin.getServer().getMaxPlayers())))
                 .build();
 
         //jda.upsertCommand("ping", "Calculate ping of the bot").queue();

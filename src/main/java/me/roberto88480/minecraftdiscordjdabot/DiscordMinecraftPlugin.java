@@ -5,6 +5,7 @@ import me.roberto88480.minecraftdiscordjdabot.minecraftevents.MinecraftPlayerJoi
 import me.roberto88480.minecraftdiscordjdabot.minecraftevents.MinecraftPlayerQuitEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,7 +25,7 @@ public class DiscordMinecraftPlugin extends JavaPlugin  {
             return;
         }
         try {
-            discordMinecraftConnector = new DiscordMinecraftConnector(token, getServer().getMaxPlayers(), this);
+            discordMinecraftConnector = new DiscordMinecraftConnector(token, this);
         } catch (LoginException e) {
             this.getLogger().severe(e.getMessage());
             Bukkit.getPluginManager().disablePlugin(this);
