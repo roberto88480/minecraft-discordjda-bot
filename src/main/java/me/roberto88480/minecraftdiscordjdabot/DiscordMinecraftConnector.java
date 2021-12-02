@@ -67,6 +67,11 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
         }
         //jda.upsertCommand(whitelistCommand).queue();
 
+        for (Guild g : jda.getGuilds()) {
+            logger.log(Level.INFO, "Registering Whitelist Command on Guild "+ g.getName() + "(" + g.getId() + ")");
+            g.upsertCommand(whitelistCommand).queue();
+        }
+    }
     @Override
     public void onSlashCommand(SlashCommandEvent event)
     {
