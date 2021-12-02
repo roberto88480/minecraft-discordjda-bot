@@ -44,7 +44,6 @@ tasks.shadowJar.dependsOn tasks.relocateShadowJar
 tasks.build.dependsOn tasks.shadowJar
 
 shadowJar {
-    from rootProject.file('src/config.yml')
     from rootProject.file('src/plugin.yml')
     archiveBaseName.set('minecraft-discordjda-bot-plugin')
     archiveClassifier.set('')

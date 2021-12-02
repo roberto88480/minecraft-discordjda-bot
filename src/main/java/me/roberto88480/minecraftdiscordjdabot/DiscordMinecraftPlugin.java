@@ -17,7 +17,7 @@ public class DiscordMinecraftPlugin extends JavaPlugin  {
     @Override
     public void onEnable(){
         loadConfig();
-        final String token = getConfig().getString("config.discord_bot_token");
+        final String token = getConfig().getString("discord.bot_token");
         if (token == null || token.length()<20){
             this.getLogger().severe("Please specify a Discord-Bot-Token in the config.");
             Bukkit.getPluginManager().disablePlugin(this);
@@ -41,7 +41,11 @@ public class DiscordMinecraftPlugin extends JavaPlugin  {
             discordMinecraftConnector.shutdown();
      }
     private void loadConfig(){
-        getConfig().options().copyDefaults(true);
+        FileConfiguration configuration = getConfig();
+        configuration.addDefault("discord.bot_token", "putyourtokenhere");
+        configuration.addDefault("discord.slashcommands.usechannelwhitelist", false);
+        configuration.addDefault("discord.slashcommands.whitelistedchannels", new Long[]{123456L, 3456789L});
+        configuration.options().copyDefaults(true);
         saveConfig();
     }
 
