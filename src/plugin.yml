@@ -1,10 +1,6 @@
 name: RobertosMinecraftDiscordBot
-version: 0.3
+version: 0.4
 author: Roberto88480
 main: me.roberto88480.minecraftdiscordjdabot.DiscordMinecraftPlugin
 api-version: 1.17
 website: 88480.eu
-commands:
-  saydiscord:
-    description: Send a message to the connected Discord server
-    usage: saydiscord <message>
