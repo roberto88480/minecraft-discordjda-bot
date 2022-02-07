@@ -5,12 +5,15 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -21,8 +24,6 @@ import org.json.simple.parser.ParseException;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -40,36 +41,43 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
                 .setActivity(Activity.playing(String.format("Minecraft %d/%d", 0, plugin.getServer().getMaxPlayers())))
                 .build();
 
-        CommandData minecraftCommand = new CommandData("minecraft", "Show Minecraft server info");
-        CommandData whitelistCommand = new CommandData("whitelist", "Show whitelisted players or add a player")
-                .addOption(OptionType.STRING, "playername", "Add this player to the Minecraft whitelist", false);
+        CommandData minecraftCommandData = new CommandData("minecraft", "Show Minecraft server info");
+            CommandData whitelistCommandData = new CommandData("whitelist", "Show whitelisted players or add a player")
+                .addOption(OptionType.STRING, "playername", "Add this player to the Minecraft whitelist", false)
+                .setDefaultEnabled(false);
 
         try {
             jda.awaitReady();
-            List<Command> commands = jda.retrieveCommands().submit().get();
-            //Delete Global Commands exept "minecraft"
-            for (Command command : commands) {
-                if (!command.getName().equals("minecraft")){
-                    command.delete().queue();
-                    logger.log(Level.INFO,"Deleted global Discord Command: " + command.getName());
+            jda.updateCommands().addCommands(minecraftCommandData).addCommands(whitelistCommandData).queue();
+            List<Command> commands = jda.retrieveCommands().complete();
+            Optional<Command> whitelistCommand = commands.stream().filter(c -> c.getName().equals("whitelist")).findAny();
+            if (whitelistCommand.isPresent()){
+                HashMap<Guild, List<CommandPrivilege>> gr = new HashMap<>();
+                LinkedList<CommandPrivilege> userCommandPrivileges = new LinkedList<>();
+                for (Long roleId : plugin.getConfig().getLongList("discord.slashcommands.whitelist.allowedroles")) {
+                    Role role = jda.getRoleById(roleId);
+                    if (role != null) {
+                        List<CommandPrivilege> a = gr.getOrDefault(role.getGuild(), new LinkedList<>());
+                        a.add(CommandPrivilege.enable(role));
+                        gr.put(role.getGuild(), a);
+                    }
                 }
+                for (Long userId : plugin.getConfig().getLongList("discord.slashcommands.whitelist.allowedusers")) {
+                    User user = jda.retrieveUserById(userId).complete();
+                    if (user != null)
+                        userCommandPrivileges.add(CommandPrivilege.enable(user));
+                }
+                whitelistCommand.ifPresent(w -> {
+                    for (Guild g : jda.getGuilds()) {
+                        List<CommandPrivilege> l = gr.getOrDefault(g, new LinkedList<>());
+                        l.addAll(userCommandPrivileges);
+                        w.updatePrivileges(g, l).queue();
+                    }
+                });
             }
-            // Create global "minecraft" command if it does not exist
-            if (commands.stream().anyMatch(c -> c.getName().equals("minecraft"))) {
-                logger.log(Level.INFO,"Discord Command already exists: " + minecraftCommand.getName());
-            } else {
-                // This can take up to 1 hour to show up in the client
-                jda.upsertCommand(minecraftCommand).queue();
-                logger.log(Level.INFO,"Added global Discord Command: " + minecraftCommand.getName());
-            }
-        } catch (InterruptedException | ExecutionException e) {
+            jda.getGuilds().forEach(g -> g.retrieveCommands().complete().forEach(c -> c.delete().queue()));
+        } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-        //jda.upsertCommand(whitelistCommand).queue();
-
-        for (Guild g : jda.getGuilds()) {
-            logger.log(Level.INFO, "Registering Whitelist Command on Guild "+ g.getName() + "(" + g.getId() + ")");
-            g.upsertCommand(whitelistCommand).queue();
         }
     }
     @Override
