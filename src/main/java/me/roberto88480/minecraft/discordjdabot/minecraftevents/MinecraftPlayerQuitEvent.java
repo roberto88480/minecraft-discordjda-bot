@@ -1,6 +1,6 @@
-package me.roberto88480.minecraftdiscordjdabot.minecraftevents;
+package me.roberto88480.minecraft.discordjdabot.minecraftevents;
 
-import me.roberto88480.minecraftdiscordjdabot.DiscordMinecraftPlugin;
+import me.roberto88480.minecraft.discordjdabot.DiscordMinecraftPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;

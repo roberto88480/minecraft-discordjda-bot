@@ -1,4 +1,4 @@
-package me.roberto88480.minecraftusernameuuidconverter;
+package me.roberto88480.minecraft.usernameuuidconverter;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;

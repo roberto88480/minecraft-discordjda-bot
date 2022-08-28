@@ -1,8 +1,8 @@
-package me.roberto88480.minecraftdiscordjdabot;
+package me.roberto88480.minecraft.discordjdabot;
 
-import me.roberto88480.minecraftdiscordjdabot.minecraftevents.MinecraftPlayerAdvancementDoneEvent;
-import me.roberto88480.minecraftdiscordjdabot.minecraftevents.MinecraftPlayerJoinEvent;
-import me.roberto88480.minecraftdiscordjdabot.minecraftevents.MinecraftPlayerQuitEvent;
+import me.roberto88480.minecraft.discordjdabot.minecraftevents.MinecraftPlayerQuitEvent;
+import me.roberto88480.minecraft.discordjdabot.minecraftevents.MinecraftPlayerAdvancementDoneEvent;
+import me.roberto88480.minecraft.discordjdabot.minecraftevents.MinecraftPlayerJoinEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.configuration.file.FileConfiguration;

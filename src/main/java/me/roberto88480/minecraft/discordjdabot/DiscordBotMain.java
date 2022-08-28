@@ -1,4 +1,4 @@
-package me.roberto88480.minecraftdiscordjdabot;
+package me.roberto88480.minecraft.discordjdabot;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 

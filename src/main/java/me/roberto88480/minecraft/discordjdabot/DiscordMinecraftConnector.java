@@ -1,19 +1,14 @@
-package me.roberto88480.minecraftdiscordjdabot;
+package me.roberto88480.minecraft.discordjdabot;
 
-import me.roberto88480.minecraftusernameuuidconverter.UsernameToUUIDConverter;
+import me.roberto88480.minecraft.usernameuuidconverter.UsernameToUUIDConverter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -49,6 +44,7 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
         try {
             jda.awaitReady();
             jda.updateCommands().addCommands(minecraftCommandData).addCommands(whitelistCommandData).queue();
+            /*
             List<Command> commands = jda.retrieveCommands().complete();
             Optional<Command> whitelistCommand = commands.stream().filter(c -> c.getName().equals("whitelist")).findAny();
             if (whitelistCommand.isPresent()){
@@ -75,6 +71,7 @@ public class DiscordMinecraftConnector extends ListenerAdapter {
                     }
                 });
             }
+             */
             jda.getGuilds().forEach(g -> g.retrieveCommands().complete().forEach(c -> c.delete().queue()));
         } catch (InterruptedException e) {
             e.printStackTrace();
